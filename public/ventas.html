@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ventas - Clínica Oftalmológica</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body class="bg-gray-100 p-6">
+  <header class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">Ventas</h1>
+    <nav>
+      <a href="index.html" class="mr-4 text-blue-600">Productos</a>
+      <a href="ventas.html" class="text-blue-600">Ventas</a>
+    </nav>
+  </header>
+
+  <!-- Registrar Venta -->
+ <section class="bg-white p-4 rounded shadow mb-6">
+    <h2 class="text-lg font-semibold mb-2">Registrar Venta</h2>
+    <form id="formVenta" class="flex gap-2 items-center">
+      <select id="selectProducto" required class="border p-2 rounded"></select>
+      <input id="ventaCantidad" type="number" min="1" value="1" required class="border p-2 rounded w-24" />
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Vender</button>
+    </form>
+  </section>
+  <!-- Filtrar por fecha -->
+  <section class="bg-white p-4 rounded shadow mb-6">
+    <h2 class="text-lg font-semibold mb-2">Filtrar Ventas por Fecha</h2>
+    <div class="flex items-center gap-2 mb-4">
+      <input type="date" id="fechaFiltro" class="border p-2 rounded">
+      <button onclick="filtrarVentas()" class="bg-blue-600 text-white px-4 py-2 rounded">Filtrar</button>
+      <button onclick="cargarVentas()" class="bg-gray-500 text-white px-4 py-2 rounded">Mostrar todas</button>
+      <button onclick="descargarPDF()" class="ml-4 bg-green-600 text-white px-4 py-2 rounded">Descargar PDF</button>
+    </div>
+  </section>
+
+  <!-- Historial de Ventas -->
+<!-- Historial de ventas -->
+  <section class="bg-white p-4 rounded shadow">
+    <h2 class="text-lg font-semibold mb-2">Historial de Ventas</h2>
+    <table class="min-w-full table-auto text-center">
+      <thead class="bg-gray-200">
+        <tr>
+          <th class="py-2 px-3">Producto</th>
+          <th class="py-2 px-3">Cantidad</th>
+          <th class="py-2 px-3">Precio Unit.</th>
+          <th class="py-2 px-3">Total</th>
+          <th class="py-2 px-3">Fecha</th>
+        </tr>
+      </thead>
+      <tbody id="ventasTabla"></tbody>
+      <tfoot>
+        <tr class="bg-gray-100 font-bold">
+          <td colspan="3" class="py-2 px-3 text-right">Total General:</td>
+          <td colspan="2" id="totalGeneral" class="py-2 px-3 text-left"></td>
+        </tr>
+      </tfoot>
+    </table>
+  </section>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
