@@ -242,10 +242,28 @@ async function registrarVenta(e) {
   }
 }
 
-async function cargarVentas() {
+async function cargarVentas(mostrarTodas = false) {
   const res = await fetch('/api/ventas');
   const ventas = await res.json();
-  mostrarVentasEnTabla(ventas);
+
+  if (!mostrarTodas) {
+    // calcular rango de hoy
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const mañana = new Date(hoy);
+    mañana.setDate(mañana.getDate() + 1);
+
+    // filtrar solo las ventas de hoy
+    const ventasHoy = ventas.filter(v => {
+      const fechaVenta = new Date(v.fecha);
+      return fechaVenta >= hoy && fechaVenta < mañana;
+    });
+
+    mostrarVentasEnTabla(ventasHoy);
+  } else {
+    // mostrar todas (cuando presionas el botón "Mostrar todas")
+    mostrarVentasEnTabla(ventas);
+  }
 }
 
 function mostrarVentasEnTabla(ventas) {
@@ -273,6 +291,7 @@ function mostrarVentasEnTabla(ventas) {
   let totalEl = document.getElementById('totalGeneral');
   if (totalEl) totalEl.textContent = "S/ " + totalGeneral.toFixed(2);
 }
+
 
 // ---------- FILTRO POR FECHA ----------
 async function filtrarVentas() {
@@ -347,3 +366,4 @@ document.addEventListener('DOMContentLoaded', () => {
   cargarVentas();
   poblarSelectProductos();
 });
+
