@@ -34,9 +34,24 @@ exports.listarVentas = async (req, res) => {
 };
 
 // Generar PDF
+
+ // Generar PDF con filtro opcional por fecha
 exports.generarPDF = async (req, res) => {
   try {
-    const ventas = await Venta.find().populate('producto');
+    const { fecha } = req.query;
+
+    // Si llega "fecha", filtramos solo las ventas de ese día
+    let filtro = {};
+    if (fecha) {
+      const inicio = new Date(fecha);
+      inicio.setHours(0, 0, 0, 0);
+      const fin = new Date(fecha);
+      fin.setHours(23, 59, 59, 999);
+
+      filtro.fecha = { $gte: inicio, $lte: fin };
+    }
+
+    const ventas = await Venta.find(filtro).populate('producto');
     const doc = new PDFDocument({ margin: 30, size: 'A4' });
 
     res.setHeader('Content-Disposition', 'attachment; filename=ventas.pdf');
@@ -47,6 +62,7 @@ exports.generarPDF = async (req, res) => {
     doc.fontSize(16).text('Clínica Oftalmológica', { align: 'center' });
     doc.moveDown(0.5);
     doc.fontSize(12).text('Reporte de Ventas', { align: 'center' });
+    if (fecha) doc.text(`Fecha: ${new Date(fecha).toLocaleDateString('es-PE')}`, { align: 'center' });
     doc.moveDown(1);
 
     // Tabla
@@ -94,3 +110,5 @@ exports.generarPDF = async (req, res) => {
     res.status(500).json({ message: 'Error generando PDF de ventas', error: err.message });
   }
 };
+
+
