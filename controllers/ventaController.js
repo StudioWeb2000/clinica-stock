@@ -40,15 +40,18 @@ exports.generarPDF = async (req, res) => {
     const { fecha } = req.query;
     let query = {};
 
+    // Si el usuario pasa una fecha, filtramos ventas de ese día
     if (fecha) {
       const inicio = new Date(fecha + "T00:00:00");
       const fin = new Date(fecha + "T23:59:59");
       query.fecha = { $gte: inicio, $lte: fin };
     }
 
-    // 🔹 Solo ventas del día filtrado (o todo si no hay fecha)
+    // 🔹 Trae ventas pero solo conserva las que tienen producto válido
     const ventas = await Venta.find(query).populate('producto');
+    const ventasValidas = ventas.filter(v => v.producto);
 
+    // Crear documento PDF
     const doc = new PDFDocument({ margin: 30, size: 'A4' });
 
     res.setHeader('Content-Disposition', 'attachment; filename=ventas.pdf');
@@ -65,7 +68,7 @@ exports.generarPDF = async (req, res) => {
     }
     doc.moveDown(1);
 
-    // Tabla
+    // Encabezado de tabla
     const tableTop = 120;
     const productoX = 50;
     const cantidadX = 200;
@@ -79,12 +82,13 @@ exports.generarPDF = async (req, res) => {
     doc.text('Total', totalX, tableTop);
     doc.text('Fecha', fechaX, tableTop);
 
+    // Contenido de tabla
     let y = tableTop + 20;
     let sumaTotal = 0;
 
-    ventas.forEach(v => {
-      const nombre = v.producto?.nombre || '—';
-      const precio = v.producto?.precio || 0;
+    ventasValidas.forEach(v => {
+      const nombre = v.producto.nombre;
+      const precio = v.producto.precio || 0;
       const total = precio * v.cantidad;
       sumaTotal += total;
 
@@ -105,6 +109,3 @@ exports.generarPDF = async (req, res) => {
     res.status(500).json({ message: 'Error generando PDF de ventas', error: err.message });
   }
 };
-
-
-
